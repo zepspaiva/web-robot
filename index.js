@@ -6,32 +6,46 @@ var TaskExec = require('./taskexec.js');
 var t = new Tasks();
 var te = new TaskExec();
 
-exports.new = function(prefix, task, data) {
+function WebRobot(basepath) {
 
-	var taskid = req.params.taskid;
+	this.t = new Tasks(basepath);
+	this.te = new TaskExec();
+
+}
+
+WebRobot.prototype.listTasks = function() {
+
+	var self = this;
+	return self.t.getTasks();
+
+}
+
+WebRobot.prototype.createTaskExecution = function(taskid) {
 		
 	return t.getTask(taskid)
 	.then(function(task) {
 
 		var taskexec = new TaskExec(task);
-		res.redirect(['/', prefix, '/next/', taskexec.uuid].join(''));
+		return taskexec.uuid;
 
 	})
 	.catch(function(err) {
 		console.log(err.stack);
-		res.status(404).send(err.message);
+		throw err;
 	});
 
 }
 
-exports.setup = function(prefix, app) {
+WebRobot.prototype.setupRoutes = function(prefix, app) {
 
+	var self = this;
+	
 	app.get(['/', prefix, '/*'].join(''), function(req, res) {
 
 		var sess = req.session;
 		if (!sess || !sess.taskexecuuid) return res.status(404).send('No session.');
 
-		return te.getTaskExec(sess.taskexecuuid)
+		return self.te.getTaskExec(sess.taskexecuuid)
 		.then(function(taskexec) {
 
 			return taskexec.runRequest('GET', req, res, req.url);
@@ -49,7 +63,7 @@ exports.setup = function(prefix, app) {
 		var sess = req.session;
 		if (!sess || !sess.taskexecuuid) return res.status(404).send('No session.');
 
-		return te.getTaskExec(sess.taskexecuuid)
+		return self.te.getTaskExec(sess.taskexecuuid)
 		.then(function(taskexec) {
 
 			return taskexec.runRequest('POST', req, res, req.url);
@@ -69,7 +83,7 @@ exports.setup = function(prefix, app) {
 		var sess = req.session;
 		sess.taskexecuuid = taskexecuuid;
 		
-		return te.getTaskExec(taskexecuuid)
+		return self.te.getTaskExec(taskexecuuid)
 		.then(function(taskexec) {
 
 			var nextstep = taskexec.nextStep();
@@ -84,3 +98,5 @@ exports.setup = function(prefix, app) {
 	});
 
 }
+
+module.exports = WebRobot;
