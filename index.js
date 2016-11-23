@@ -13,12 +13,15 @@ function WebRobot(basepath) {
 WebRobot.prototype.listTasks = function() {
 
 	var self = this;
+	
 	return self.t.getTasks();
 
 }
 
 WebRobot.prototype.createTaskExecution = function(taskid) {
-		
+	
+	var self = this;	
+
 	return self.t.getTask(taskid)
 	.then(function(task) {
 
