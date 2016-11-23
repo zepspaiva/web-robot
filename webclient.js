@@ -5,7 +5,7 @@ var util = require('util');
 var request = require('request');
 var iconv = require('iconv-lite');
 
-var DEBUG = true;
+var DEBUG = false;
 
 function WebClient(task, jar) {
 
