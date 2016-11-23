@@ -42,22 +42,6 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	var self = this;
 
-	app.use(function(req, res, next) {
-		req.rawBody = '';
-		req.setEncoding('utf8');
-		req.on('data', function(chunk) {
-			console.log('req data');
-			req.rawBody += chunk;
-		});
-		req.on('end', function() {
-			console.log('req end');
-			next();
-		});
-		req.on('finish', function() {
-			console.log('req finish');
-		})
-	});
-
 	if (self.debug) console.log('Registering: ', [self.prefix, '/next/:taskexecuuid'].join(''));
 	app.get([self.prefix, '/next/:taskexecuuid'].join(''), function(req, res) {
 
