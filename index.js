@@ -41,6 +41,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	var self = this;
 
+	console.log('Registering: ', [self.prefix, '/next/:taskexecuuid'].join(''));
 	app.get([self.prefix, '/next/:taskexecuuid'].join(''), function(req, res) {
 
 		var taskexecuuid = req.params.taskexecuuid;
@@ -62,6 +63,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	});
 
+	console.log('Registering: ', [self.prefix, '/current/:taskexecuuid'].join(''));
 	app.get([self.prefix, '/current/:taskexecuuid'].join(''), function(req, res) {
 
 		var taskexecuuid = req.params.taskexecuuid;
@@ -82,7 +84,8 @@ WebRobot.prototype.setupRoutes = function(app) {
 		});
 
 	});
-	
+
+	console.log('Registering: ', [self.prefix, '/*'].join(''));
 	app.get([self.prefix, '/*'].join(''), function(req, res) {
 
 		var sess = req.session;
@@ -101,6 +104,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	});
 
+	console.log('Registering: ', [self.prefix, '/*'].join(''));
 	app.post([self.prefix, '/*'].join(''), function(req, res) {
 
 		var sess = req.session;
