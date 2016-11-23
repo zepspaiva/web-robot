@@ -1,6 +1,5 @@
 var Q = require('q');
 var express = require('express');
-var bodyParser = require('body-parser');
 var session = require('express-session');
 
 var WebRobot = require('../index.js');
@@ -11,19 +10,6 @@ var port = 3003;
 function main() {
 
 	var webrobot = new WebRobot('../tasks');
-
-	app.use(function(req, res, next) {
-		req.rawBody = '';
-		req.setEncoding('utf8');
-		req.on('data', function(chunk) { 
-			req.rawBody += chunk;
-		});
-		req.on('end', function() {
-			next();
-		});
-	});
-
-	app.set('trust proxy', 1);
 
 	app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}));
 
