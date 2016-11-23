@@ -3,11 +3,12 @@ var Q = require('q');
 var Tasks = require('./tasks.js');
 var TaskExec = require('./taskexec.js');
 
-function WebRobot(basepath, prefix) {
+function WebRobot(basepath, prefix, debug) {
 
 	this.t = new Tasks(basepath);
 	this.te = new TaskExec();
 	this.prefix = prefix || '';
+	this.debug = debug || false;
 
 }
 
@@ -41,7 +42,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	var self = this;
 
-	console.log('Registering: ', [self.prefix, '/next/:taskexecuuid'].join(''));
+	if (self.debug) console.log('Registering: ', [self.prefix, '/next/:taskexecuuid'].join(''));
 	app.get([self.prefix, '/next/:taskexecuuid'].join(''), function(req, res) {
 
 		var taskexecuuid = req.params.taskexecuuid;
@@ -63,7 +64,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	});
 
-	console.log('Registering: ', [self.prefix, '/current/:taskexecuuid'].join(''));
+	if (self.debug) console.log('Registering: ', [self.prefix, '/current/:taskexecuuid'].join(''));
 	app.get([self.prefix, '/current/:taskexecuuid'].join(''), function(req, res) {
 
 		var taskexecuuid = req.params.taskexecuuid;
@@ -85,7 +86,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	});
 
-	console.log('Registering: ', [self.prefix, '/*'].join(''));
+	if (self.debug) console.log('Registering: ', [self.prefix, '/*'].join(''));
 	app.get([self.prefix, '/*'].join(''), function(req, res) {
 
 		var sess = req.session;
@@ -104,7 +105,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	});
 
-	console.log('Registering: ', [self.prefix, '/*'].join(''));
+	if (self.debug) console.log('Registering: ', [self.prefix, '/*'].join(''));
 	app.post([self.prefix, '/*'].join(''), function(req, res) {
 
 		var sess = req.session;

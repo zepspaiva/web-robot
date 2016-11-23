@@ -5,6 +5,8 @@ var util = require('util');
 var request = require('request');
 var iconv = require('iconv-lite');
 
+var DEBUG = true;
+
 function WebClient(task, jar) {
 
 	this.task = task;
@@ -32,6 +34,8 @@ TransformStream.prototype._transform = function(chunk, encoding, callback) {
 
 WebClient.prototype._createPostRequest = function(url, jar, postdata, headers) {
 
+	if (DEBUG) console.log('POST', url);
+
 	var options = {
 		url: url,
 		//proxy: 'http://localhost:8000/',
@@ -57,6 +61,8 @@ WebClient.prototype._createPostRequest = function(url, jar, postdata, headers) {
 };
 
 WebClient.prototype._createGetRequest = function(url, jar, headers) {
+
+	if (DEBUG) console.log('GET', url);
 
 	var options = {
 		url: url,
