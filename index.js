@@ -95,7 +95,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 		return self.te.getTaskExec(sess.taskexecuuid)
 		.then(function(taskexec) {
 
-			return taskexec.runRequest('GET', req, res, req.url.substr(self.prefix.length+1));
+			return taskexec.runRequest('GET', req, res, req.url.substr(self.prefix.length));
 
 		})
 		.catch(function(err) {
@@ -114,7 +114,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 		return self.te.getTaskExec(sess.taskexecuuid)
 		.then(function(taskexec) {
 
-			return taskexec.runRequest('POST', req, res, req.url.substr(self.prefix.length+1));
+			return taskexec.runRequest('POST', req, res, req.url.substr(self.prefix.length));
 
 		})
 		.catch(function(err) {
