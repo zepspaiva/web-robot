@@ -55,7 +55,7 @@ TaskExec.prototype.curStep = function() {
 
 	var self = this;
 	
-	return new Step(self.task.steps[self.context.curstep]);
+	return new Step(self.task.steps[self.context.curstep], self.prefix);
 
 };
 
