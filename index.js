@@ -13,7 +13,7 @@ function WebRobot(basepath) {
 WebRobot.prototype.listTasks = function() {
 
 	var self = this;
-	
+
 	return self.t.getTasks();
 
 }
@@ -39,6 +39,27 @@ WebRobot.prototype.createTaskExecution = function(taskid) {
 WebRobot.prototype.setupRoutes = function(prefix, app) {
 
 	var self = this;
+
+	app.get(['/', prefix, '/next/:taskexecuuid'].join(''), function(req, res) {
+
+		var taskexecuuid = req.params.taskexecuuid;
+
+		var sess = req.session;
+		sess.taskexecuuid = taskexecuuid;
+		
+		return self.te.getTaskExec(taskexecuuid)
+		.then(function(taskexec) {
+
+			var nextstep = taskexec.nextStep();
+			res.redirect(nextstep.url);
+
+		})
+		.catch(function(err) {
+			console.log(err.stack);
+			res.status(404).send(err.message);
+		});
+
+	});
 	
 	app.get(['/', prefix, '/*'].join(''), function(req, res) {
 
@@ -67,27 +88,6 @@ WebRobot.prototype.setupRoutes = function(prefix, app) {
 		.then(function(taskexec) {
 
 			return taskexec.runRequest('POST', req, res, req.url);
-
-		})
-		.catch(function(err) {
-			console.log(err.stack);
-			res.status(404).send(err.message);
-		});
-
-	});
-
-	app.get(['/', prefix, '/next/:taskexecuuid'].join(''), function(req, res) {
-
-		var taskexecuuid = req.params.taskexecuuid;
-
-		var sess = req.session;
-		sess.taskexecuuid = taskexecuuid;
-		
-		return self.te.getTaskExec(taskexecuuid)
-		.then(function(taskexec) {
-
-			var nextstep = taskexec.nextStep();
-			res.redirect(nextstep.url);
 
 		})
 		.catch(function(err) {
