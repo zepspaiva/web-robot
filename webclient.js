@@ -34,8 +34,6 @@ TransformStream.prototype._transform = function(chunk, encoding, callback) {
 
 WebClient.prototype._createPostRequest = function(url, jar, postdata, headers) {
 
-	if (DEBUG) console.log('POST', url);
-
 	var options = {
 		url: url,
 		//proxy: 'http://localhost:8000/',
@@ -52,17 +50,15 @@ WebClient.prototype._createPostRequest = function(url, jar, postdata, headers) {
 		if (['content-type', 'user-agent'].indexOf(h.toLowerCase()) > -1)
 			options.headers[h] = headers[h];
 
-	var r = request(options, function (error, response, body) {
+	if (DEBUG) console.log('POST', url, postdata, options.headers);
+
+	return request(options, function (error, response, body) {
 		if (error) return console.log('POST REQ ERROR', error);
 	});
-
-	return r;
 
 };
 
 WebClient.prototype._createGetRequest = function(url, jar, headers) {
-
-	if (DEBUG) console.log('GET', url);
 
 	var options = {
 		url: url,
@@ -77,6 +73,8 @@ WebClient.prototype._createGetRequest = function(url, jar, headers) {
 
 	if (headers && headers['content-type'])
 		options.headers['content-type'] = headers['content-type'];
+
+	if (DEBUG) console.log('GET', url, options.headers);
 
 	return request(options, function (error, response, body) {
 		if (error) return console.log('GET REQ ERROR', error);
