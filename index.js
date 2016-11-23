@@ -54,7 +54,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 		.then(function(taskexec) {
 
 			var step = taskexec.nextStep();
-			res.redirect(step.url.substr(self.prefix.length+1));
+			res.redirect(step.url);
 
 		})
 		.catch(function(err) {
@@ -76,7 +76,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 		.then(function(taskexec) {
 
 			var step = taskexec.curStep();
-			res.redirect(step.url.substr(self.prefix.length+1));
+			res.redirect(step.url);
 
 		})
 		.catch(function(err) {
