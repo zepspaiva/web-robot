@@ -111,7 +111,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 
 	var step = taskexec.curStep();
 
-	self._createRequest(newurl, self.jar, method, req.rawBody, req.headers)
+	self._createRequest(newurl, self.jar, method, req.body, req.headers)
 	.on('response', function(response) {
 
 		// If it's not HTML, act as a proxy;
