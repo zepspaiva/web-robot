@@ -3,9 +3,6 @@ var Q = require('q');
 var Tasks = require('./tasks.js');
 var TaskExec = require('./taskexec.js');
 
-var t = new Tasks();
-var te = new TaskExec();
-
 function WebRobot(basepath) {
 
 	this.t = new Tasks(basepath);
@@ -22,7 +19,7 @@ WebRobot.prototype.listTasks = function() {
 
 WebRobot.prototype.createTaskExecution = function(taskid) {
 		
-	return t.getTask(taskid)
+	return self.t.getTask(taskid)
 	.then(function(task) {
 
 		var taskexec = new TaskExec(task);
