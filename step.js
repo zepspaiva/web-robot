@@ -1,7 +1,7 @@
 var Q = require('q');
 var cheerio = require('cheerio');
 
-function Step(config) {
+function Step(config, prefix) {
 
 	var self = this;
 
@@ -11,6 +11,7 @@ function Step(config) {
 	self.fields = config.fields || [];
 	self.actions = config.actions || [];
 	self.recognition = config.recognition || [];
+	self.prefix = prefix;
 
 };
 
@@ -57,16 +58,19 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 
 	var self = this;
 
-	html += '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>';
+	html += ['<script type="text/javascript" src="/', self.prefix, 'static/jquery-latest.min.js"></script>'].join('');
+	html += ['<script type="text/javascript" src="/', self.prefix, 'static/spin.min.js"></script>'].join('');
+
+	// html += ['<script type="text/javascript"> $("body").spin("modal","', self.name, '"); </script>'].join('');
 
 	var timeoutbegin = 'setTimeout(function() {';
-	var timeoutend = '}, 100);';
+	var timeoutend = '}, 10);';
 	var timeoutcount = 0;
 
 	html += '<script type="text/javascript">';
 	html += '$(window).on(\'load\', function() {';
 
-	if (self.fields && self.fields.length) {	
+	if (self.fields && self.fields.length) {
 
 		for (f in self.fields) {
 
@@ -124,6 +128,8 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 		}
 
 	}
+
+	// html += ['$("body").spinstop("modal");'].join('');
 
 	for (var i = 0; i < timeoutcount; i++)
 		html += timeoutend;

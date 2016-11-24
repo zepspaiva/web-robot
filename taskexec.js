@@ -9,9 +9,10 @@ var WebClient = require('./webclient.js');
 
 var taskexecs = {};
 
-function TaskExec(task) {
+function TaskExec(task, webrobot) {
 
 	this.task = task;
+	this.webrobot = webrobot;
 	this.jar = request.jar();
 	this.context = {};
 	this.uuid = uuid.v1();
@@ -64,6 +65,14 @@ TaskExec.prototype.runRequest = function(method, req, res, url) {
 	var self = this;
 
 	return self.webclient.runRequest(self, method, req, res, url);
+
+};
+
+TaskExec.prototype.trigger = function(eventtype, data) {
+
+	var self = this;
+
+	self.webrobot.trigger([eventtype, self.uuid].join('-'), data);
 
 };
 

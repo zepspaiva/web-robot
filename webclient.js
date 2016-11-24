@@ -4,6 +4,7 @@ var fs = require('fs');
 var util = require('util');
 var request = require('request');
 var iconv = require('iconv-lite');
+var Stream = require('stream').Transform;
 
 var DEBUG = false;
 
@@ -21,6 +22,7 @@ var TransformStream = function(options) {
 	options.objectMode = true;
 	Transform.call(this, options);
 	this.data = '';
+	this.filedata = new Stream();
 };
 
 util.inherits(TransformStream, Transform);
@@ -28,6 +30,7 @@ util.inherits(TransformStream, Transform);
 TransformStream.prototype._transform = function(chunk, encoding, callback) {
 	
 	this.data += iconv.decode(chunk, 'iso-8859-1');
+	this.filedata.push(chunk);
 	callback();
 
 };
@@ -114,11 +117,37 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 	self._createRequest(newurl, self.jar, method, req.rawBody, req.headers)
 	.on('response', function(response) {
 
-		// If it's not HTML, act as a proxy;
-		if (response.statusCode != 200 || response.headers['content-type'].indexOf('text/html') == -1)
+		var ts = new TransformStream();
+
+		// Response status code is not 200...
+		if (response.statusCode != 200)
+			return response.pipe(res);
+	
+		else if (response.headers['content-type'].indexOf('application/pdf') != -1)
+			return response
+			.pipe(ts)
+			.on('finish', function() {
+				ts.end();
+				taskexec.trigger('newpdffile', ts.filedata);
+				return res.redirect('./finish');
+			});
+
+		// If it's not HTML, javascript or PDF, act as a proxy;
+		else if (response.headers['content-type'].indexOf('text/html') == -1 &&
+			 	 response.headers['content-type'].indexOf('application/pdf') == -1 &&
+			 	 response.headers['content-type'].indexOf('javascript') == -1)
 			return response.pipe(res);
 
-		var ts = new TransformStream();
+		// If it's javscript change code so there are no alerts or confirmations...
+		else if (response.headers['content-type'].indexOf('javascript') != -1) {
+			return response
+				.pipe(ts)
+				.on('finish', function() {
+					ts.end();
+					var js = ts.data.toString().replace(/alert\(/gi, 'console.log(').replace(/confirm\(.*\)/gi, 'true');
+					return res.send(js);
+				});
+		}
 
 		// Ignore page if there's no current step or if the urls don't match..
 		// if (!step || (step.url && step.url != rurl))
@@ -131,7 +160,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 		.on('finish', function() {
 
 			ts.end();
-			var html = ts.data.toString();
+			var html = ts.data.toString().replace(/alert\(/gi, 'console.log(').replace(/confirm\([^\)]*\)/gi, 'true');
 
 			// Skip not recognized steps...
 			while (step && !step.recognize(html)) {

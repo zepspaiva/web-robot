@@ -1,4 +1,5 @@
 var Q = require('q');
+var path = require('path');
 
 var Tasks = require('./tasks.js');
 var TaskExec = require('./taskexec.js');
@@ -9,6 +10,7 @@ function WebRobot(basepath, prefix, debug) {
 	this.te = new TaskExec();
 	this.prefix = prefix || '';
 	this.debug = debug || false;
+	this.eventmap = {};
 
 }
 
@@ -27,7 +29,7 @@ WebRobot.prototype.createTaskExecution = function(taskid) {
 	return self.t.getTask(taskid)
 	.then(function(task) {
 
-		var taskexec = new TaskExec(task);
+		var taskexec = new TaskExec(task, self);
 		return taskexec.uuid;
 
 	})
@@ -38,9 +40,35 @@ WebRobot.prototype.createTaskExecution = function(taskid) {
 
 }
 
+WebRobot.prototype.on = function(eventname, callback) {
+
+	var self = this;
+
+	self.eventmap[eventname] = callback;
+
+};
+
+WebRobot.prototype.trigger = function(eventname, data) {
+
+	var self = this;
+
+	var cb = self.eventmap[eventname];
+	if (!cb) return console.log('Event callback not found', eventname);
+
+	cb(data);
+
+};
+
 WebRobot.prototype.setupRoutes = function(app) {
 
 	var self = this;
+
+	if (self.debug) console.log('Registering: ', [self.prefix, '/static/*'].join(''));
+	app.get([self.prefix, '/static/*'].join(''), function(req, res) {
+
+		res.sendFile(path.resolve(__dirname + req.url.substr(self.prefix.length)));
+
+	});
 
 	if (self.debug) console.log('Registering: ', [self.prefix, '/next/:taskexecuuid'].join(''));
 	app.get([self.prefix, '/next/:taskexecuuid'].join(''), function(req, res) {
