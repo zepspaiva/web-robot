@@ -59,12 +59,14 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 
 	html += '<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>';
 
-	if (self.fields && self.fields.length) {
+	var timeoutbegin = 'setTimeout(function() {';
+	var timeoutend = '}, 100);';
+	var timeoutcount = 0;
 
-		html += '<script type="text/javascript">';
-		html += '$(window).on(\'load\', function() {';
-		//html += '$(document).ready(function() {';
-		//html += 'setTimeout(function() {';
+	html += '<script type="text/javascript">';
+	html += '$(window).on(\'load\', function() {';
+
+	if (self.fields && self.fields.length) {	
 
 		for (f in self.fields) {
 
@@ -72,6 +74,9 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 			
 			var selector = field.type == 'select' ? 'select' : 'input';
 			var selectorfields = ['id', 'name', 'type'];
+
+			html += timeoutbegin;
+			timeoutcount++;
 
 			if (field.type == 'select') selectorfields = ['id', 'name'];
 
@@ -93,24 +98,17 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 
 		}
 
-		//html += '}, 400);';
-		//html += '});';
-		html += '});';
-		html += '</script>';
-
 	}
 
 	// Code to run actions...
 	if (self.actions && self.actions.length) {
 
-		html += '<script type="text/javascript">';
-		html += '$(window).on(\'load\', function() {';
-		//html += '$(document).ready(function() {';
-		//html += 'setTimeout(function() {';
-
 		for (a in self.actions) {
 
 			var action = self.actions[a];
+
+			html += timeoutbegin;
+			timeoutcount++;
 
 			if (action.code)
 				html += action.code;
@@ -125,12 +123,13 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 
 		}
 
-		//html += '}, 1000);';
-		//html += '});';
-		html += '});';
-		html += '</script>';
-
 	}
+
+	for (var i = 0; i < timeoutcount; i++)
+		html += timeoutend;
+
+	html += '});';
+	html += '</script>';
 
 	return html;
 
