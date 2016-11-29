@@ -150,7 +150,10 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 		}
 
 		// Ignore page if there's no current step or if the urls don't match..
-		// if (!step || (step.url && step.url != rurl))
+		if (!step || (step.url && step.url != rurl)) {
+			console.log('URL unexpected:', rurl);
+			console.log('Eexpected URL:', step.url);
+		}
 		// 	return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
 
 		res.setHeader('content-type', response.headers['content-type']);
