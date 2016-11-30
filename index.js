@@ -22,6 +22,14 @@ WebRobot.prototype.listTasks = function() {
 
 }
 
+WebRobot.prototype.getTask = function(taskid) {
+
+	var self = this;
+
+	return self.t.getTask(taskid);
+
+}
+
 WebRobot.prototype.createTaskExecution = function(taskid) {
 	
 	var self = this;
