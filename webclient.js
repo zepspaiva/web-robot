@@ -22,7 +22,7 @@ var TransformStream = function(options) {
 	options.objectMode = true;
 	Transform.call(this, options);
 	this.data = '';
-	this.filedata = new Stream();
+	this.filedata = [];
 };
 
 util.inherits(TransformStream, Transform);
@@ -129,12 +129,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			.on('finish', function() {
 				ts.end();
 
-				var filebuffer = new Buffer();
-				var chunk = ts.filedata.read();
-				while (chunk != null) {
-					filebuffer = filebuffer.concat(chunk);
-					chunk = ts.filedata.read();
-				}
+				var filebuffer = Buffer.concat(ts.filedata);
 				taskexec.trigger('newpdffile', filebuffer);
 
 				console.log('Redirecting client to', self.task.pdfurl);
