@@ -182,6 +182,8 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 				return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
 			}
 
+			taskexec.trigger('newstep', step.name);
+
 			// Inject step code...
 			html = step.injectCode(html, taskexec.uuid);
 
