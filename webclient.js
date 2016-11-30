@@ -130,7 +130,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 				ts.end();
 				taskexec.trigger('newpdffile', ts.filedata);
 				console.log('Redirecting client to', self.task.pdfurl);
-				return res.redirect(self.task.pdfurl);
+				return res.redirect([self.task.pdfurl, '?uuid=', taskexec.uuid].join(''));
 			});
 
 		// If it's not HTML, javascript or PDF, act as a proxy;
