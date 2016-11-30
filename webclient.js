@@ -128,7 +128,15 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			.pipe(ts)
 			.on('finish', function() {
 				ts.end();
-				taskexec.trigger('newpdffile', ts.filedata);
+
+				var filebuffer = new Buffer();
+				var chunk = ts.filedata.read();
+				while (chunk != null) {
+					filebuffer = filebuffer.concat(chunk);
+					chunk = ts.filedata.read();
+				}
+				taskexec.trigger('newpdffile', filebuffer);
+
 				console.log('Redirecting client to', self.task.pdfurl);
 				return res.redirect([self.task.pdfurl, '?uuid=', taskexec.uuid].join(''));
 			});
