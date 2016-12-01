@@ -39,6 +39,7 @@ WebRobot.prototype.createTaskExecution = function(taskid, data) {
 
 		return self.t.setupTaskValues(task, data);
 
+	})
 	.then(function(task) {
 
 		var taskexec = new TaskExec(task, self);
