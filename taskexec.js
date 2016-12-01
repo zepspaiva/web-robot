@@ -19,7 +19,7 @@ function TaskExec(task, webrobot) {
 	this.context = {};
 	this.uuid = uuid.v1();
 
-	if (DEBUG) console.log('NEW TASK EXEC: ', JSON.stringify(task));
+	if (DEBUG) console.log('NEW TASK: ', JSON.stringify(task));
 	
 	this.webclient = new WebClient(this.task, this.jar);
 
