@@ -1,1 +1,1 @@
-git add * || true && git commit -m "." && git push && git clean -df && npm version patch && npm publish
+git add * || true && git clean -df && git commit -m "." && git push && npm version patch && npm publish
