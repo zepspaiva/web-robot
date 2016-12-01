@@ -1,1 +1,1 @@
-git add * &> /dev/null && git commit -m "." && git push && npm version patch && npm publish
+git add * || true && git commit -m "." && git push && npm version patch && npm publish
