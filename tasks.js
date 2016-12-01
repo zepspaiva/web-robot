@@ -100,7 +100,7 @@ Tasks.prototype.setupTaskValues = function(task, data) {
 
 					if (fieldname in data)
 						field['value'] = data[fieldname];
-					else if (step['default'])
+					else if (field['default'])
 						field['value'] = field['default'];
 					else
 						console.log('Undefined field:', fieldname);
