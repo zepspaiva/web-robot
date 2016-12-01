@@ -7,6 +7,8 @@ var fs = require('fs');
 var Step = require('./step.js');
 var WebClient = require('./webclient.js');
 
+var DEBUG = true;
+
 var taskexecs = {};
 
 function TaskExec(task, webrobot) {
@@ -16,6 +18,8 @@ function TaskExec(task, webrobot) {
 	this.jar = request.jar();
 	this.context = {};
 	this.uuid = uuid.v1();
+
+	if (DEBUG) console.log('NEW TASK: ', task);
 	
 	this.webclient = new WebClient(this.task, this.jar);
 

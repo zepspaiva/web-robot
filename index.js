@@ -30,11 +30,15 @@ WebRobot.prototype.getTask = function(taskid) {
 
 }
 
-WebRobot.prototype.createTaskExecution = function(taskid) {
+WebRobot.prototype.createTaskExecution = function(taskid, data) {
 	
 	var self = this;
 
 	return self.t.getTask(taskid)
+	.then(function(task) {
+
+		return self.t.setupTaskValues(task, data);
+
 	.then(function(task) {
 
 		var taskexec = new TaskExec(task, self);

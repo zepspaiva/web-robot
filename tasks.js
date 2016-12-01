@@ -77,4 +77,51 @@ Tasks.prototype.getTask = function(taskid) {
 
 };
 
+Tasks.prototype.setupTaskValues = function(task, data) {
+
+	var self = this;
+	var p = Q();
+
+	if (task.steps)
+		p = p
+		.then(function() {
+
+			var taskprefix = task.prefix || '';
+
+			return Q.all(task.steps.map(function(step) {
+
+				if (!step.fields) return;
+
+				var stepprefix = [taskprefix, step.prefix].join('_');
+
+				return Q.all(step.fields.map(function(field) {
+
+					var fieldname = [stepprefix, field.name].join('_');
+
+					if (fieldname in data)
+						field['value'] = data[fieldname];
+					else if (step['default'])
+						field['value'] = field['default'];
+					else
+						console.log('Undefined field:', fieldname);
+
+				}));
+
+			}));
+
+		});
+
+	if (data.filename)
+		p = p
+		.then(function() {
+			task.filename = data.filename;
+		});
+
+	return p
+	.then(function() {
+		return task;
+	});
+
+};
+
 module.exports = Tasks;
