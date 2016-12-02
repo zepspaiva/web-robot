@@ -138,9 +138,15 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 						var option = options[i];
 						var dist = _levenshtein(option.text, field.value);
 
-						if (dist < validoptiondist)
+						console.log('calc dist', dist, validoptiondist);
+
+						if (dist < validoptiondist) {
 							validoption = option;
+							validoptiondist = dist;
+						}
 					}
+
+					console.log('validoption', validoption);
 					
 					if (validoption)
 						html += ['$(\'',selector, '\').val(\'', validoption.value,'\')', field.trigger ? '.trigger(\'' + field.trigger + '\');' : ';'].join('');
