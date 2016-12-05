@@ -46,6 +46,8 @@ function selectclosest(selector, value) {
 		}
 	}
 
+	if (validoption) $(selector).val(validoption.value);
+
 	return $(selector);
 
 }
