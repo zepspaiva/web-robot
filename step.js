@@ -93,6 +93,10 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 				if (field.checked || field.value == true)
 					html += ['$(\'',selector, '\').prop(\'checked\', true);'].join('');
 
+			} else if (field.type === 'javascript') {
+
+				html += field.code;
+
 			} else if (field.value) {
 				
 				if (field.type == 'select') {
