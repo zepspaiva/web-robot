@@ -14,7 +14,7 @@ function WebClient(task, jar) {
 	this.jar = jar;
 
 	this.cache = {};
-	this.cacheable = /\.css$|\.js$|\.jpg$|\.png$/ 
+	this.cacheable = /\.css$|\.js$|\.jpg$|\.png|\.gif$/ 
 	
 };
 
