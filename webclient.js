@@ -12,6 +12,9 @@ function WebClient(task, jar) {
 
 	this.task = task;
 	this.jar = jar;
+
+	this.cache = {};
+	this.cacheable = /\.css$|\.js$|\.jpg$|\.png$/ 
 	
 };
 
@@ -114,6 +117,11 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 
 	var step = taskexec.curStep();
 
+	if (self.cacheable.test(req.url) && req.url in self.cache) {
+		console.log('Using cache', req.url);
+		res.status(200).send(self.cache[req.url]);
+	}
+
 	self._createRequest(newurl, self.jar, method, req.rawBody, req.headers)
 	.on('response', function(response) {
 
@@ -139,8 +147,23 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 		// If it's not HTML, javascript or PDF, act as a proxy;
 		else if (response.headers['content-type'].indexOf('text/html') == -1 &&
 			 	 response.headers['content-type'].indexOf('application/pdf') == -1 &&
-			 	 response.headers['content-type'].indexOf('javascript') == -1)
-			return response.pipe(res);
+			 	 response.headers['content-type'].indexOf('javascript') == -1) {
+
+			if (!self.cacheable.test(req.url))
+				return response.pipe(res);
+
+			console.log('Will cache', req.url);
+
+			return response
+			.pipe(ts)
+			.on('finish', function() {
+				ts.end();
+				self.cache[req.url] = Buffer.concat(ts.filedata);
+				response.pipe(res);
+			});
+
+		}
+			
 
 		// If it's javscript change code so there are no alerts or confirmations...
 		else if (response.headers['content-type'].indexOf('javascript') != -1) {

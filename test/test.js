@@ -1,4 +1,6 @@
 var Q = require('q');
+var fs = require('fs');
+var path = require('path');
 var express = require('express');
 var bodyParser = require("body-parser");
 var session = require('express-session');
@@ -8,9 +10,12 @@ var WebRobot = require('../index.js');
 var app = express();
 var port = 3003;
 
+var tasksfolderpath = 'mapping/tasks';
+var mapsfolderpath = 'mapping/maps';
+
 function main() {
 
-	var webrobot = new WebRobot('../tasks');
+	var webrobot = new WebRobot(tasksfolderpath, null, true);
 
 	app.use(function(req, res, next) {
 		req.rawBody = '';
@@ -56,8 +61,9 @@ function main() {
 	app.get('/run/:taskid', function(req, res) {
 
 		var taskid = req.params.taskid;
-		
-		return webrobot.createTaskExecution(taskid)
+		var data = JSON.parse(fs.readFileSync(path.join(mapsfolderpath, taskid.replace(/\.task$/, '') + '.map.json')));
+
+		return webrobot.createTaskExecution(taskid, data)
 		.then(function(taskexecuuid) {
 
 			res.redirect(['/next/', taskexecuuid].join(''));
