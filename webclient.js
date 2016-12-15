@@ -38,7 +38,7 @@ TransformStream.prototype._transform = function(chunk, encoding, callback) {
 
 };
 
-WebClient.prototype._createPostRequest = function(url, jar, postdata, headers) {
+WebClient.prototype._createPostRequest = function(taskexec, url, jar, postdata, headers) {
 
 	if (DEBUG) console.log('POST', url, postdata);
 
@@ -61,12 +61,15 @@ WebClient.prototype._createPostRequest = function(url, jar, postdata, headers) {
 	if (DEBUG) console.log('POST', url, postdata, options.headers);
 
 	return request(options, function (error, response, body) {
-		if (error) return console.log('POST REQ ERROR', error);
+		if (error) {
+			console.log('POST REQ ERROR', error);
+			taskexec.trigger('error', error.code);
+		}
 	});
 
 };
 
-WebClient.prototype._createGetRequest = function(url, jar, headers) {
+WebClient.prototype._createGetRequest = function(taskexec, url, jar, headers) {
 
 	if (DEBUG) console.log('GET', url);
 
@@ -87,22 +90,25 @@ WebClient.prototype._createGetRequest = function(url, jar, headers) {
 	if (DEBUG) console.log('GET', url, options.headers);
 
 	return request(options, function (error, response, body) {
-		if (error) return console.log('GET REQ ERROR', error);
+		if (error) {
+			console.log('GET REQ ERROR', error);
+			taskexec.trigger('error', error.code);
+		}
 	});
 
 };
 
-WebClient.prototype._createRequest = function(url, jar, method, postdata, headers) {
+WebClient.prototype._createRequest = function(taskexec, url, jar, method, postdata, headers) {
 
 	var self = this;
 
 	switch (method) {
 
 		case 'POST':
-			return self._createPostRequest(url, jar, postdata, headers);
+			return self._createPostRequest(taskexec, url, jar, postdata, headers);
 
 		default:
-			return self._createGetRequest(url, jar, headers);
+			return self._createGetRequest(taskexec, url, jar, headers);
 
 	}
 
@@ -122,7 +128,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 		res.status(200).send(self.cache[req.url]);
 	}
 
-	self._createRequest(newurl, self.jar, method, req.rawBody, req.headers)
+	self._createRequest(taskexec, newurl, self.jar, method, req.rawBody, req.headers)
 	.on('response', function(response) {
 
 		var ts = new TransformStream();
@@ -163,8 +169,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			});
 
 		}
-			
-
+		
 		// If it's javscript change code so there are no alerts or confirmations...
 		else if (response.headers['content-type'].indexOf('javascript') != -1) {
 			return response

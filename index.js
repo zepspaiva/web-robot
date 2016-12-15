@@ -65,6 +65,8 @@ WebRobot.prototype.trigger = function(eventname, data) {
 
 	var self = this;
 
+	console.log('Triggering', eventname, data);
+
 	var cb = self.eventmap[eventname];
 	if (!cb) return console.log('Event callback not found', eventname);
 

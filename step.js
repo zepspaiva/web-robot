@@ -43,6 +43,9 @@ Step.prototype.recognize = function(html) {
 		
 		try {
 			valid = eval(rule.query);
+
+			console.log('eval recog expr>', rule.query, valid);
+
 		} catch(err) {
 			console.log(err.stack);
 			valid = false;
