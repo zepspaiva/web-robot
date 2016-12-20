@@ -132,6 +132,9 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 			if (action.code)
 				html += action.code;
 
+			if (action.error)
+				throw new Error(action.error);
+
 			switch (action.type) {
 
 				case "nextstep":

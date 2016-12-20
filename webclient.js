@@ -212,8 +212,14 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 
 			taskexec.trigger('newstep', step.name);
 
-			// Inject step code...
-			html = step.injectCode(html, taskexec.uuid);
+			try {
+
+				// Inject step code...
+				html = step.injectCode(html, taskexec.uuid);
+
+			} catch (err) {
+				taskexec.trigger('error', err.toString());
+			}
 
 			// Go to next step...
 
