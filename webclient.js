@@ -216,8 +216,11 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			html = step.injectCode(html, taskexec.uuid);
 
 			// Go to next step...
-			step = taskexec.nextStep();
-			if (step) console.log('Going to next step:', step.name);
+
+			if (!step.repeatUntilNotRecognized) {
+				step = taskexec.nextStep();
+				if (step) console.log('Going to next step:', step.name);
+			}
 
 			// Send injected HTML to client;
 			return res.send(html);

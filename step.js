@@ -11,6 +11,7 @@ function Step(config, prefix) {
 	self.fields = config.fields || [];
 	self.actions = config.actions || [];
 	self.recognition = config.recognition || [];
+	self.repeatUntilNotRecognized = config.repeatUntilNotRecognized || false;
 	self.prefix = prefix;
 
 };
