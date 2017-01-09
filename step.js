@@ -13,6 +13,7 @@ function Step(config, prefix) {
 	self.recognition = config.recognition || [];
 	self.condition = config.condition || [];
 	self.repeatUntilNotRecognized = config.repeatUntilNotRecognized || false;
+	self.data = config.data;
 	self.prefix = prefix;
 
 };
@@ -21,8 +22,6 @@ Step.prototype.isValid = function() {
 
 	var self = this;
 	var valid = true;
-
-	console.log('IS VALID STEP?');
 
 	with (self.data) {
 
@@ -42,8 +41,6 @@ Step.prototype.isValid = function() {
 		}
 
 	}
-
-	console.log('IS VALID STEP?', valid);
 
 	return valid;
 
