@@ -11,6 +11,7 @@ function Step(config, prefix) {
 	self.fields = config.fields || [];
 	self.actions = config.actions || [];
 	self.recognition = config.recognition || [];
+	self.condition = config.condition || [];
 	self.repeatUntilNotRecognized = config.repeatUntilNotRecognized || false;
 	self.prefix = prefix;
 
@@ -19,9 +20,30 @@ function Step(config, prefix) {
 Step.prototype.isValid = function() {
 
 	var self = this;
-	var p = Q();
-
 	var valid = true;
+
+	console.log('IS VALID STEP?');
+
+	with (self.data) {
+
+		console.log('IS VALID STEP? (1)', self.data);
+
+		var i = 0;
+		while (valid && i < self.condition.length) {
+			var rule = self.condition[i];
+			if (rule.query) {
+				try {
+					valid = eval(rule.query);
+				} catch(err) {
+					valid = false;
+				};
+			}
+			i++;
+		}
+
+	}
+
+	console.log('IS VALID STEP?', valid);
 
 	return valid;
 
@@ -40,17 +62,13 @@ Step.prototype.recognize = function(html) {
 	var i = 0;
 	while (valid && i < self.recognition.length) {
 		var rule = self.recognition[i];
-		if (!rule.query) valid = true;
-		
-		try {
-			valid = eval(rule.query);
-
-			console.log('eval recog expr>', rule.query, valid);
-
-		} catch(err) {
-			console.log(err.stack);
-			valid = false;
-		};
+		if (rule.query) {
+			try {
+				valid = eval(rule.query);
+			} catch(err) {
+				valid = false;
+			};
+		}
 		i++;
 	}
 

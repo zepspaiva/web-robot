@@ -9,6 +9,7 @@ function Tasks(basepath) {
 	this.basepath = basepath || './tasks';
 	this.taskregex = /.*\.json/i;
 	this.filesys = new FileSys();
+	this.data = {};
 
 };
 
@@ -82,6 +83,8 @@ Tasks.prototype.setupTaskValues = function(task, data) {
 	var self = this;
 	var p = Q();
 
+	self.data = data;
+
 	if (task.steps)
 		p = p
 		.then(function() {
@@ -90,6 +93,7 @@ Tasks.prototype.setupTaskValues = function(task, data) {
 
 			return Q.all(task.steps.map(function(step) {
 
+				step.data = data;
 				if (!step.fields) return;
 
 				var stepprefix = [taskprefix, step.prefix].join('_');
