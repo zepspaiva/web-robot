@@ -34,7 +34,6 @@ Step.prototype.isValid = function() {
 				} catch(err) {
 					valid = false;
 				};
-				console.log('CHECK STEP CONDITION', rule.query, valid);
 			}
 			i++;
 		}
