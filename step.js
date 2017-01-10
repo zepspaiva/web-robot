@@ -25,8 +25,6 @@ Step.prototype.isValid = function() {
 
 	with (self.data) {
 
-		console.log('IS VALID STEP? (1)', self.data);
-
 		var i = 0;
 		while (valid && i < self.condition.length) {
 			var rule = self.condition[i];
@@ -36,6 +34,7 @@ Step.prototype.isValid = function() {
 				} catch(err) {
 					valid = false;
 				};
+				console.log('CHECK STEP CONDITION', rule.query, valid);
 			}
 			i++;
 		}
