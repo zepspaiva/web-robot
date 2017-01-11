@@ -74,17 +74,18 @@ Step.prototype.recognize = function(html) {
 Step.prototype.injectCode = function(html, taskexecuuid) {
 
 	var self = this;
+	var code = '';
 
-	html += ['<script type="text/javascript" src="/', self.prefix, 'static/jquery-latest.min.js"></script>'].join('');
-	html += ['<script type="text/javascript" src="/', self.prefix, 'static/spin.min.js"></script>'].join('');
-	html += ['<script type="text/javascript" src="/', self.prefix, 'static/webrobot.js"></script>'].join('');
+	code += ['<script type="text/javascript" src="/', self.prefix, 'static/jquery-latest.min.js"></script>'].join('');
+	code += ['<script type="text/javascript" src="/', self.prefix, 'static/spin.min.js"></script>'].join('');
+	code += ['<script type="text/javascript" src="/', self.prefix, 'static/webrobot.js"></script>'].join('');
 
 	var timeoutbegin = 'setTimeout(function() {';
 	var timeoutend = '}, 10);';
 	var timeoutcount = 0;
 
-	html += '<script type="text/javascript">';
-	html += '$(window).on(\'load\', function() {';
+	code += '<script type="text/javascript">';
+	code += '$(window).on(\'load\', function() {';
 
 	if (self.fields && self.fields.length) {
 
@@ -95,7 +96,7 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 			var selector = field.type == 'select' ? 'select' : 'input';
 			var selectorfields = ['id', 'name', 'type'];
 
-			html += timeoutbegin;
+			code += timeoutbegin;
 			timeoutcount++;
 
 			if (field.type == 'select') selectorfields = ['id', 'name'];
@@ -108,21 +109,21 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 			if (field.type === 'radio' || field.type === 'checkbox') {
 
 				if (field.checked || field.value == true)
-					html += ['$(\'',selector, '\').prop(\'checked\', true);'].join('');
+					code += ['$(\'',selector, '\').prop(\'checked\', true);'].join('');
 
 			} else if (field.type === 'javascript') {
 
-				html += field.code;
+				code += field.code;
 
 			} else if (field.value) {
 				
 				if (field.type == 'select') {
 					
-					html += ['selectclosest(\'',selector, '\', \'', field.value,'\')', field.trigger ? '.trigger(\'' + field.trigger + '\');' : ';'].join('');
+					code += ['selectclosest(\'',selector, '\', \'', field.value,'\')', field.trigger ? '.trigger(\'' + field.trigger + '\');' : ';'].join('');
 
 				} else {
 					
-					html += ['$(\'',selector, '\').val(\'', field.value,'\')', field.trigger ? '.trigger(\'' + field.trigger + '\');' : ';'].join('');
+					code += ['$(\'',selector, '\').val(\'', field.value,'\')', field.trigger ? '.trigger(\'' + field.trigger + '\');' : ';'].join('');
 
 				}
 
@@ -139,11 +140,11 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 
 			var action = self.actions[a];
 
-			html += timeoutbegin;
+			code += timeoutbegin;
 			timeoutcount++;
 
 			if (action.code)
-				html += action.code;
+				code += action.code;
 
 			if (action.error)
 				throw new Error(action.error);
@@ -151,7 +152,7 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 			switch (action.type) {
 
 				case "nextstep":
-					html += ["window.location = '/current/", taskexecuuid, "';"].join('');
+					code += ["window.location = '/current/", taskexecuuid, "';"].join('');
 					break;
 
 			}
@@ -163,12 +164,14 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 	// html += ['$("body").spinstop("modal");'].join('');
 
 	for (var i = 0; i < timeoutcount; i++)
-		html += timeoutend;
+		code += timeoutend;
 
-	html += '});';
-	html += '</script>';
+	code += '});';
+	code += '</script>';
 
-	return html;
+	console.log('CODE:', code);
+
+	return html + code;
 
 };
 

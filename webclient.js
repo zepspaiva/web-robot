@@ -208,6 +208,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			if (!step) {
 				console.log('No more steps...');
 				return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
+				//return res.send(html);
 			}
 
 			taskexec.trigger('newstep', step.name);
