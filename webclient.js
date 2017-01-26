@@ -176,7 +176,8 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 				.pipe(ts)
 				.on('finish', function() {
 					ts.end();
-					var js = ts.data.toString().replace(/alert\(/gi, 'console.log(').replace(/confirm\(.*\)/gi, 'true');
+					//.replace(/alert\(/gi, 'console.log(')
+					var js = ts.data.toString().replace(/confirm\(.*\)/gi, 'true');
 					return res.send(js);
 				});
 		}
@@ -195,7 +196,8 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 		.on('finish', function() {
 
 			ts.end();
-			var html = ts.data.toString().replace(/alert\(/gi, 'console.log(').replace(/confirm\([^\)]*\)/gi, 'true');
+			//.replace(/alert\(/gi, 'console.log(')
+			var html = ts.data.toString().replace(/confirm\([^\)]*\)/gi, 'true');
 
 			// Skip not recognized steps...
 			while (step && !step.recognize(html)) {
