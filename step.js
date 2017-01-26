@@ -61,6 +61,7 @@ Step.prototype.recognize = function(html) {
 			try {
 				valid = eval(rule.query);
 			} catch(err) {
+				console.log(err);
 				valid = false;
 			};
 		}
@@ -109,7 +110,7 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 			if (field.type === 'radio' || field.type === 'checkbox') {
 
 				if (field.checked || field.value == true)
-					code += ['$(\'',selector, '\').prop(\'checked\', true);'].join('');
+					code += ['$(\'',selector, '\').prop(\'checked\', true)', field.trigger ? '.trigger(\'' + field.trigger + '\');' : ';'].join('');
 
 			} else if (field.type === 'javascript') {
 

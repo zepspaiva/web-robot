@@ -207,8 +207,8 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			// Ignore page if it's not recognized by any of the next steps...
 			if (!step) {
 				console.log('No more steps...');
-				return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
-				//return res.send(html);
+				//return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
+				return res.send(html);
 			}
 
 			taskexec.trigger('newstep', step.name);
