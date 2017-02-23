@@ -124,7 +124,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 	var step = taskexec.curStep();
 
 	if (self.cacheable.test(req.url) && req.url in self.cache) {
-		console.log('Using cache', req.url);
+		//console.log('Using cache', req.url);
 		res.status(200).send(self.cache[req.url]);
 	}
 
@@ -158,7 +158,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			if (!self.cacheable.test(req.url))
 				return response.pipe(res);
 
-			console.log('Will cache', req.url);
+			//console.log('Will cache', req.url);
 
 			return response
 			.pipe(ts)
@@ -201,7 +201,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 
 			// Skip not recognized steps...
 			while (step && !step.recognize(html)) {
-				console.log('Skiping step', step.name);
+				console.log('\x1b[31m%s\x1b[0m', 'Skiping step', step.name);
 				step = taskexec.nextStep();
 				if (step) console.log('Going to next step:', step.name);
 			}

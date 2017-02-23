@@ -11,6 +11,7 @@ function Step(config, prefix) {
 	self.fields = config.fields || [];
 	self.actions = config.actions || [];
 	self.recognition = config.recognition || [];
+	self.variables = config.variables || [];
 	self.condition = config.condition || [];
 	self.repeatUntilNotRecognized = config.repeatUntilNotRecognized || false;
 	self.data = config.data;
@@ -51,24 +52,56 @@ Step.prototype.recognize = function(html) {
 	if (!self.recognition.length)
 		return true;
 
-	var $ = cheerio.load(html);
-	var valid = true;
+	with (self.data) {
 
-	var i = 0;
-	while (valid && i < self.recognition.length) {
-		var rule = self.recognition[i];
-		if (rule.query) {
-			try {
-				valid = eval(rule.query);
-			} catch(err) {
-				console.log(err);
-				valid = false;
-			};
+		var $ = cheerio.load(html);
+		var valid = true;
+
+		var i = 0;
+		while (valid && i < self.recognition.length) {
+			var rule = self.recognition[i];
+			if (rule.query) {
+				try {
+					valid = eval(rule.query);
+					console.log('query', rule.query, valid);
+				} catch(err) {
+					console.log(err);
+					valid = false;
+				};
+			}
+			i++;
 		}
-		i++;
+
 	}
 
 	return valid;
+
+};
+
+Step.prototype.addVariables = function(html) {
+
+	var self = this;
+	var code = '';
+
+	if (!self.variables.length)
+		return code;
+
+	var $ = cheerio.load(html);
+
+	self.variables.forEach(function(rule) {
+		if (rule.code) {
+			var value = rule.default || null;
+			try {
+				value = eval(["(function(data) { with(data) { ", rule.code, " } })"].join(''))(self.data);
+				console.log('variable code and result', rule.code, value);
+			} catch(err) {
+				console.log(err.stack);
+			};
+			code += ['var ', rule.name, ' = ', typeof value == 'string' ? ['"', value, '"'].join('') : value, ';'].join('');
+		}
+	});
+
+	return code;
 
 };
 
@@ -87,6 +120,8 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 
 	code += '<script type="text/javascript">';
 	code += '$(window).on(\'load\', function() {';
+
+	code += self.addVariables(html);
 
 	if (self.fields && self.fields.length) {
 
@@ -144,8 +179,10 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 			code += timeoutbegin;
 			timeoutcount++;
 
-			if (action.code)
+			if (action.code) {
+				code += ["console.log('Running: ", action.code.replace(/'/g, '*'), "');"].join('')
 				code += action.code;
+			}
 
 			if (action.error)
 				throw new Error(action.error);
