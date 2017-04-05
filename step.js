@@ -110,7 +110,7 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 	var self = this;
 	var code = '';
 
-	code += ['<script type="text/javascript" src="/', self.prefix, 'static/jquery-latest.min.js"></script>'].join('');
+	// code += ['<script type="text/javascript" src="/', self.prefix, 'static/jquery-latest.min.js"></script>'].join('');
 	code += ['<script type="text/javascript" src="/', self.prefix, 'static/spin.min.js"></script>'].join('');
 	code += ['<script type="text/javascript" src="/', self.prefix, 'static/webrobot.js"></script>'].join('');
 

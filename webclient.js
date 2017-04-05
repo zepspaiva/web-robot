@@ -123,13 +123,17 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 
 	var step = taskexec.curStep();
 
+	console.log('>', req.url);
+
 	if (self.cacheable.test(req.url) && req.url in self.cache) {
-		//console.log('Using cache', req.url);
-		res.status(200).send(self.cache[req.url]);
+		console.log('Using cache', req.url);
+		return res.status(200).send(self.cache[req.url]);
 	}
 
 	self._createRequest(taskexec, newurl, self.jar, method, req.rawBody, req.headers)
 	.on('response', function(response) {
+
+		console.log(response.headers['content-type']);
 
 		var ts = new TransformStream();
 
@@ -150,25 +154,32 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 				return res.redirect([self.task.pdfurl, '?uuid=', taskexec.uuid].join(''));
 			});
 
+		else if (response.headers['content-type'].indexOf('application/json') != -1)
+			return response.pipe(res);
+		
+
 		// If it's not HTML, javascript or PDF, act as a proxy;
-		else if (response.headers['content-type'].indexOf('text/html') == -1 &&
-			 	 response.headers['content-type'].indexOf('application/pdf') == -1 &&
-			 	 response.headers['content-type'].indexOf('javascript') == -1) {
+		// else if (response.headers['content-type'].indexOf('text/html') == -1 &&
+		// 	 	 response.headers['content-type'].indexOf('application/pdf') == -1// &&
+		// 	 	 //response.headers['content-type'].indexOf('javascript') == -1// &&
+		// 	 	 //response.headers['content-type'].indexOf('text/css') == -1 &&
+		// 	 	 //response.headers['content-type'].indexOf('image/png') == -1
+		// 	 	 ) {
 
-			if (!self.cacheable.test(req.url))
-				return response.pipe(res);
+		// 	if (!self.cacheable.test(req.url))
+		// 		return response.pipe(res);
 
-			//console.log('Will cache', req.url);
+		// 	console.log('Will cache', req.url);
 
-			return response
-			.pipe(ts)
-			.on('finish', function() {
-				ts.end();
-				self.cache[req.url] = Buffer.concat(ts.filedata);
-				response.pipe(res);
-			});
+		// 	return response
+		// 	.pipe(ts)
+		// 	.on('finish', function() {
+		// 		ts.end();
+		// 		self.cache[req.url] = Buffer.concat(ts.filedata);
+		// 		return res.send(self.cache[req.url]);
+		// 	});
 
-		}
+		// }
 		
 		// If it's javscript change code so there are no alerts or confirmations...
 		else if (response.headers['content-type'].indexOf('javascript') != -1) {
@@ -184,8 +195,8 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 
 		// Ignore page if there's no current step or if the urls don't match..
 		if (!step || (step.url && step.url != rurl)) {
-			console.log('URL unexpected:', rurl);
-			console.log('Eexpected URL:', step.url);
+			console.log('TYPE/URL unexpected:', response.headers['content-type'], rurl);
+			console.log('Expected URL:', step.url);
 		}
 		// 	return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
 

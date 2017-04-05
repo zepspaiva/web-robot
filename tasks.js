@@ -100,7 +100,7 @@ Tasks.prototype.setupTaskValues = function(task, data) {
 
 				return Q.all(step.fields.map(function(field) {
 
-					var fieldname = [stepprefix, field.name].join('_');
+					var fieldname = [stepprefix, field.name || field.id].join('_');
 
 					if (fieldname in data)
 						field['value'] = data[fieldname];

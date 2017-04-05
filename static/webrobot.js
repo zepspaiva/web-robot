@@ -44,6 +44,13 @@ function selectclosest(selector, value) {
 			validoption = option;
 			validoptiondist = dist;
 		}
+
+		dist = levenshtein(option.value, value);
+
+		if (dist < validoptiondist) {
+			validoption = option;
+			validoptiondist = dist;
+		}
 	}
 
 	if (validoption) $(selector).val(validoption.value);
