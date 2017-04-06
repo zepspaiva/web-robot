@@ -52,7 +52,7 @@ FileSys.prototype.readJsonFile = function(filepath) {
         return JSON.parse(content);
     })
     .catch(function(err) {
-        console.log('Read file error', folderpath, filepath);
+        console.log('Read file error', filepath, err);
         throw err;
     });
     
