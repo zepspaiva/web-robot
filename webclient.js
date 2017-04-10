@@ -209,8 +209,6 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl, host
 		}
 		// 	return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
 
-		res.setHeader('content-type', response.headers['content-type']);
-
 		response
 		.pipe(ts)
 		.on('finish', function() {
@@ -230,6 +228,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl, host
 			if (!step) {
 				console.log('No more steps...');
 				//return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
+				res.setHeader('content-type', response.headers['content-type']);
 				return res.send(html);
 			}
 
@@ -293,6 +292,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl, host
 			}
 
 			// Send injected HTML to client;
+			res.setHeader('content-type', response.headers['content-type']);
 			return res.send(html)
 
 		});
