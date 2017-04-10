@@ -264,7 +264,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl, host
 
 				console.log('> SHOT: ', shoturl);
 
-				var tempfilepath = [uuid.v4(), '.png'].join('');
+				var tempfilepath = [uuid.v4(), '.pdf'].join('');
 
 				webshot(shoturl, tempfilepath, {
 					siteType:'url',
