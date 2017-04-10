@@ -285,6 +285,9 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl, host
 
 					fs.unlink(tempfilepath);
 
+					console.log('Redirecting client to', self.task.pdfurl);
+					return res.redirect([self.task.pdfurl, '?uuid=', taskexec.uuid].join(''));
+
 				});
 
 			}
