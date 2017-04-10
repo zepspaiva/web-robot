@@ -19,7 +19,7 @@ function TaskExec(task, webrobot) {
 	this.context = {};
 	this.uuid = uuid.v1();
 
-	if (DEBUG) console.log('NEW TASK: ', JSON.stringify(task));
+	//if (DEBUG) console.log('NEW TASK: ', JSON.stringify(task));
 	
 	this.webclient = new WebClient(this.task, this.jar);
 
@@ -64,11 +64,11 @@ TaskExec.prototype.curStep = function() {
 
 };
 
-TaskExec.prototype.runRequest = function(method, req, res, url) {
+TaskExec.prototype.runRequest = function(method, req, res, url, host) {
 
 	var self = this;
 
-	return self.webclient.runRequest(self, method, req, res, url);
+	return self.webclient.runRequest(self, method, req, res, url, host);
 
 };
 

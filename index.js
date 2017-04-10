@@ -1,5 +1,6 @@
 var Q = require('q');
 var path = require('path');
+var url = require('url');
 
 var Tasks = require('./tasks.js');
 var TaskExec = require('./taskexec.js');
@@ -107,6 +108,27 @@ WebRobot.prototype.setupRoutes = function(app) {
 
 	});
 
+	if (self.debug) console.log('Registering: ', [self.prefix, '/lastshot'].join(''));
+	app.get([self.prefix, '/*/lastshot'].join(''), function(req, res) {
+
+		var taskexecuuid = req.query.taskexecuuid;
+
+		var sess = req.session;
+		sess.taskexecuuid = taskexecuuid;
+		
+		return self.te.getTaskExec(taskexecuuid)
+		.then(function(taskexec) {
+			
+			res.status(200).send(taskexec.task.lastHTML || '');
+
+		})
+		.catch(function(err) {
+			console.log(err.stack);
+			res.status(404).send(err.message);
+		});
+
+	});
+
 	if (self.debug) console.log('Registering: ', [self.prefix, '/current/:taskexecuuid'].join(''));
 	app.get([self.prefix, '/current/:taskexecuuid'].join(''), function(req, res) {
 
@@ -138,7 +160,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 		return self.te.getTaskExec(sess.taskexecuuid)
 		.then(function(taskexec) {
 
-			return taskexec.runRequest('GET', req, res, req.url.substr(self.prefix.length));
+			return taskexec.runRequest('GET', req, res, req.url.substr(self.prefix.length), req.headers.host);
 
 		})
 		.catch(function(err) {
@@ -157,7 +179,7 @@ WebRobot.prototype.setupRoutes = function(app) {
 		return self.te.getTaskExec(sess.taskexecuuid)
 		.then(function(taskexec) {
 
-			return taskexec.runRequest('POST', req, res, req.url.substr(self.prefix.length));
+			return taskexec.runRequest('POST', req, res, req.url.substr(self.prefix.length), req.headers.host);
 
 		})
 		.catch(function(err) {

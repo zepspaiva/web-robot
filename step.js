@@ -128,7 +128,8 @@ Step.prototype.injectCode = function(html, taskexecuuid) {
 		for (f in self.fields) {
 
 			var field = self.fields[f];
-			
+			console.log(field);
+
 			var selector = field.type == 'select' ? 'select' : 'input';
 			var selectorfields = ['id', 'name', 'type'];
 

@@ -5,6 +5,8 @@ var util = require('util');
 var request = require('request');
 var iconv = require('iconv-lite');
 var Stream = require('stream').Transform;
+var uuid = require('uuid');
+var webshot = require('webshot');
 
 var DEBUG = false;
 
@@ -114,7 +116,7 @@ WebClient.prototype._createRequest = function(taskexec, url, jar, method, postda
 
 };
 
-WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
+WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl, host) {
 
 	var self = this;
 	var baseurl = self.task.baseurl;
@@ -122,8 +124,6 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 	var newurl = [baseurl, rurl].join('');
 
 	var step = taskexec.curStep();
-
-	console.log('>', req.url);
 
 	if (self.cacheable.test(req.url) && req.url in self.cache) {
 		console.log('Using cache', req.url);
@@ -134,13 +134,16 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 	.on('response', function(response) {
 
 		console.log(response.headers['content-type']);
+		console.log(req.url);
+		console.log(response.statusCode);
 
 		var ts = new TransformStream();
 
 		// Response status code is not 200...
-		if (response.statusCode != 200)
+		if (response.statusCode != 200 && response.statusCode != 302)
 			return response.pipe(res);
 	
+		// Response is a PDF file...
 		else if (response.headers['content-type'].indexOf('application/pdf') != -1)
 			return response
 			.pipe(ts)
@@ -154,9 +157,14 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 				return res.redirect([self.task.pdfurl, '?uuid=', taskexec.uuid].join(''));
 			});
 
-		else if (response.headers['content-type'].indexOf('application/json') != -1)
+		// Response is JSON data... 
+		else if (response.headers['content-type'].indexOf('javascript') == -1 &&
+				 response.headers['content-type'].indexOf('html') == -1) {
+			res.setHeader('content-type', response.headers['content-type']);
+			console.log('> Redirecting >', response.headers['content-type'], req.url);
 			return response.pipe(res);
-		
+		}
+
 
 		// If it's not HTML, javascript or PDF, act as a proxy;
 		// else if (response.headers['content-type'].indexOf('text/html') == -1 &&
@@ -189,14 +197,15 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 					ts.end();
 					//.replace(/alert\(/gi, 'console.log(')
 					var js = ts.data.toString().replace(/confirm\(.*\)/gi, 'true');
+					console.log('> Javascript >', response.headers['content-type'], req.url);
 					return res.send(js);
 				});
 		}
 
 		// Ignore page if there's no current step or if the urls don't match..
-		if (!step || (step.url && step.url != rurl)) {
-			console.log('TYPE/URL unexpected:', response.headers['content-type'], rurl);
-			console.log('Expected URL:', step.url);
+		if (!step || (step.url && rurl.indexOf(step.url) != 0)) {
+			console.error('### TYPE/URL unexpected:', response.headers['content-type'], rurl);
+			console.error('### Expected URL:', step.url);
 		}
 		// 	return response.pipe(ts).on('finish', function () { return res.send(ts.data.toString()); });
 
@@ -226,6 +235,8 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 
 			taskexec.trigger('newstep', step.name);
 
+			self.task.lastHTML = html;
+
 			try {
 
 				// Inject step code...
@@ -238,12 +249,48 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl) {
 			// Go to next step...
 
 			if (!step.repeatUntilNotRecognized) {
-				step = taskexec.nextStep();
-				if (step) console.log('Going to next step:', step.name);
+				var nextstep = taskexec.nextStep();
+				if (nextstep) console.log('Going to next step:', nextstep.name);
+			}
+
+			console.log('> Injected HTML >', response.headers['content-type'], req.url);
+
+			var lastshot = step.config.lastshot;
+			if (lastshot) {
+
+				var shoturl = host ? ['https://', host].join('') : '';
+				if (lastshot.prefix) shoturl += lastshot.prefix;
+				shoturl += ['lastshot?taskexecuuid=', taskexec.uuid].join('');
+
+				console.log('> SHOT: ', shoturl);
+
+				var tempfilepath = [uuid.v4(), '.png'].join('');
+
+				webshot(shoturl, tempfilepath, {
+					siteType:'url',
+					defaultWhiteBackground: true,
+					phantomConfig: {
+						'load-images': 'yes',
+						'local-to-remote-url-access': 'yes',
+						'ignore-ssl-errors': 'true'
+					}
+				}, function(err) {
+
+					if (err) console.log(err.stack);
+
+					console.log('Screenshot saved: ', tempfilepath);
+
+					var filebuffer = fs.readFileSync(tempfilepath);
+					taskexec.trigger('newpdffile', filebuffer);
+
+					fs.unlink(tempfilepath);
+
+				});
+
 			}
 
 			// Send injected HTML to client;
-			return res.send(html);
+			return res.send(html)
 
 		});
 
