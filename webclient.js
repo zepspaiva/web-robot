@@ -265,7 +265,7 @@ WebClient.prototype.runRequest = function(taskexec, method, req, res, rurl, host
 
 				var tempfilepath = [uuid.v4(), '.pdf'].join('');
 
-				webshot(shoturl, tempfilepath, {
+				return webshot(shoturl, tempfilepath, {
 					siteType:'url',
 					defaultWhiteBackground: true,
 					phantomConfig: {
