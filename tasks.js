@@ -83,7 +83,7 @@ Tasks.prototype.setupTaskValues = function(task, data) {
 	var self = this;
 	var p = Q();
 
-	self.data = data;
+	task.data = data;
 
 	if (task.steps)
 		p = p
